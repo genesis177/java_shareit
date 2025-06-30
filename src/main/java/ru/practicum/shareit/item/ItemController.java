@@ -9,9 +9,10 @@ import java.util.List;
 @RequestMapping("/items")
 @RequiredArgsConstructor
 public class ItemController {
-    private final ItemService service;
 
     private static final String USER_HEADER = "X-Sharer-User-Id";
+    private final ItemService service;
+
 
     @PostMapping
     public ItemDto create(@RequestBody ItemDto itemDto,

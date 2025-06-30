@@ -13,9 +13,10 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-    private final UserStorage storage;
 
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[\\w-.]+@[\\w-]+\\.[\\w-]{2,}$");
+    private final UserStorage storage;
+
 
     @Override
     public UserDto create(UserDto userDto) {

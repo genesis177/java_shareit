@@ -38,7 +38,7 @@ public class ItemServiceImpl implements ItemService {
             item.setName(itemDto.getName());
         }
         if (itemDto.getDescription() != null) {
-            if (itemDto.getDescription().isBlank()) throw new ValidationException("Описание не может быт пустым");
+            if (itemDto.getDescription().isBlank()) throw new ValidationException("Описание не может быть пустым");
             item.setDescription(itemDto.getDescription());
         }
         if (itemDto.getAvailable() != null) {
