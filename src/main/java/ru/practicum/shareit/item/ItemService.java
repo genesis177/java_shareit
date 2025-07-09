@@ -3,28 +3,17 @@ package ru.practicum.shareit.item;
 import java.util.List;
 
 public interface ItemService {
-    /**
-     * Создать предмет.
-     */
     ItemDto create(ItemDto itemDto, Long ownerId);
 
-    /**
-     * Обновить предмет.
-     */
     ItemDto update(Long itemId, ItemDto itemDto, Long ownerId);
 
-    /**
-     * Получить предмет по id.
-     */
-    ItemDto get(Long itemId, Long userId);
+    ItemDtoWithBookings get(Long itemId, Long userId);
 
-    /**
-     * Получить все предметы пользователя.
-     */
-    List<ItemDto> getAll(Long ownerId);
+    List<ItemDtoWithBookings> getAllByOwner(Long ownerId);
 
-    /**
-     * Поиск предметов по тексту.
-     */
     List<ItemDto> search(String text);
+
+    CommentDto createComment(Long itemId, Long userId, CommentDto commentDto);
+
+    List<ItemDto> getAll(Long userId);
 }
