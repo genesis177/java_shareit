@@ -49,7 +49,7 @@ class ItemServiceTest {
             }
         };
 
-        // Инициализация тестовых данныхициализация тестовых данных
+        // Инициализация тестовых данных
         owner = User.builder()
                 .id(1L)
                 .name("Owner")
@@ -204,7 +204,7 @@ class ItemServiceTest {
     void search_WithText_ReturnsListOfItemDto() {
         when(itemRepository.search(anyString())).thenReturn(List.of(item));
 
-        List<ItemDto> result = itemService.search("item");
+        List<ItemDto> result = itemService.search("Предмет");
 
         assertNotNull(result);
         assertEquals(1, result.size());
@@ -253,7 +253,7 @@ class ItemServiceTest {
         CommentDto emptyCommentDto = CommentDto.builder()
                 .id(1L)
                 .text("")
-                .authorName("Author")
+                .authorName("Автор")
                 .created(comment.getCreated())
                 .build();
 

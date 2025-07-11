@@ -112,7 +112,7 @@ public class BookingServiceImpl implements BookingService {
                         bookerId, BookingStatus.REJECTED, SORT_BY_START_DESC);
                 break;
             default:
-                throw new ValidationException("Unknown state: " + state);
+                throw new ValidationException("Неизвестный статус: " + state);
         }
 
         return bookings.stream()
@@ -155,7 +155,7 @@ public class BookingServiceImpl implements BookingService {
                         ownerId, BookingStatus.REJECTED, SORT_BY_START_DESC);
                 break;
             default:
-                throw new ValidationException("Unknown state: " + state);
+                throw new ValidationException("Неизвестный статус: " + state);
         }
 
         return bookings.stream()

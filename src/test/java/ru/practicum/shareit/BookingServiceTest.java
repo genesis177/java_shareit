@@ -179,10 +179,10 @@ class BookingServiceTest {
     }
 
     @Test
-    void approve_NotOwner_ThrowsNotFoundException() {
+    void approve_NotOwner_ThrowsValidationException() {
         when(bookingRepository.findById(anyLong())).thenReturn(Optional.of(booking));
 
-        assertThrows(NotFoundException.class, () -> bookingService.approve(1L, booker.getId(), true));
+        assertThrows(ValidationException.class, () -> bookingService.approve(1L, booker.getId(), true));
         verify(bookingRepository, never()).save(any(Booking.class));
     }
 

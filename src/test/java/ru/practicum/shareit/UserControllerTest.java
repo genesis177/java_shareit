@@ -65,7 +65,7 @@ class UserControllerTest {
 
     @Test
     void create_DuplicateEmail_ReturnsConflict() throws Exception {
-        when(userService.create(any(UserDto.class))).thenThrow(new ConflictException("Email already exists"));
+        when(userService.create(any(UserDto.class))).thenThrow(new ConflictException("Этот email уже существует"));
 
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -98,7 +98,7 @@ class UserControllerTest {
 
     @Test
     void update_NonExistingUser_ReturnsNotFound() throws Exception {
-        when(userService.update(anyLong(), any(UserDto.class))).thenThrow(new NotFoundException("User not found"));
+        when(userService.update(anyLong(), any(UserDto.class))).thenThrow(new NotFoundException("Пользователь не найден"));
 
         mockMvc.perform(patch("/users/999")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -123,7 +123,7 @@ class UserControllerTest {
 
     @Test
     void get_NonExistingUser_ReturnsNotFound() throws Exception {
-        when(userService.get(anyLong())).thenThrow(new NotFoundException("User not found"));
+        when(userService.get(anyLong())).thenThrow(new NotFoundException("Пользователь не найден"));
 
         mockMvc.perform(get("/users/999"))
                 .andExpect(status().isNotFound());

@@ -22,7 +22,6 @@ public class ItemServiceImpl implements ItemService {
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
 
-    // Оставляем только один конструктор
     public ItemServiceImpl(ItemRepository itemRepository, UserRepository userRepository,
                            BookingRepository bookingRepository, CommentRepository commentRepository) {
         this.itemRepository = itemRepository;

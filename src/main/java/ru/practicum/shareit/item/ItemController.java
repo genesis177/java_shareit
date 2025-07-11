@@ -47,7 +47,7 @@ public class ItemController {
                                  @RequestBody CommentDto commentDto,
                                  @RequestHeader(USER_HEADER) Long userId) {
         if (commentDto.getText() == null || commentDto.getText().isBlank()) {
-            throw new ValidationException("Comment text is required");
+            throw new ValidationException("Текст комментария обязателен");
         }
         return service.createComment(itemId, userId, commentDto);
     }
