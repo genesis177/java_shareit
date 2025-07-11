@@ -187,7 +187,7 @@ class ItemServiceTest {
 
     @Test
     void getAllByOwner_ReturnsListOfItemDtoWithBookings() {
-        when(itemRepository.findByOwnerIdOrderById(anyLong())).thenReturn(List.of(item));
+        when(itemRepository.findByOwner_IdOrderById(anyLong())).thenReturn(List.of(item));
         when(commentRepository.findByItemIdIn(anyList())).thenReturn(Collections.emptyList());
 
         List<ItemDtoWithBookings> result = itemService.getAllByOwner(owner.getId());

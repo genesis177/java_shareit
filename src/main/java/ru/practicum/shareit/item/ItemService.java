@@ -16,4 +16,6 @@ public interface ItemService {
     CommentDto createComment(Long itemId, Long userId, CommentDto commentDto);
 
     List<ItemDto> getAll(Long userId);
+
+
 }

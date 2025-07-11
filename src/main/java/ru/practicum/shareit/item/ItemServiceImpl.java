@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
-public abstract class ItemServiceImpl implements ItemService {
+public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
@@ -100,7 +100,7 @@ public abstract class ItemServiceImpl implements ItemService {
     @Override
     @Transactional(readOnly = true)
     public List<ItemDtoWithBookings> getAllByOwner(Long ownerId) {
-        List<Item> items = itemRepository.findByOwnerIdOrderById(ownerId);
+        List<Item> items = itemRepository.findByOwner_IdOrderById(ownerId);
         if (items.isEmpty()) {
             return Collections.emptyList();
         }
@@ -150,7 +150,7 @@ public abstract class ItemServiceImpl implements ItemService {
     @Transactional
     public CommentDto createComment(Long itemId, Long userId, CommentDto commentDto) {
         if (commentDto.getText() == null || commentDto.getText().isBlank()) {
-            throw new ValidationException("Текст комментария не может быть пустым");
+            throw new ValidationException("Comment text is required");
         }
 
         User author = userRepository.findById(userId)
@@ -175,6 +175,11 @@ public abstract class ItemServiceImpl implements ItemService {
                 .build();
 
         return CommentMapper.toDto(commentRepository.save(comment));
+    }
+
+    @Override
+    public List<ItemDto> getAll(Long userId) {
+        return List.of();
     }
 
     private void validate(ItemDto itemDto, boolean isCreate) {

@@ -37,4 +37,6 @@ public class ErrorHandler {
         log.error("500 {}", e.getMessage(), e);
         return new ErrorResponse("Произошла непредвиденная ошибка.");
     }
+
+
 }
