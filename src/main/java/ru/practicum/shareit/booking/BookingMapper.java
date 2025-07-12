@@ -3,6 +3,10 @@ package ru.practicum.shareit.booking;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.user.User;
 
+/**
+ * Класс для преобразования объектов бронирования между различными представлениями
+ */
+
 public class BookingMapper {
     public static BookingDto toDto(Booking booking) {
         if (booking == null) return null;
@@ -10,8 +14,8 @@ public class BookingMapper {
                 .id(booking.getId())
                 .start(booking.getStart())
                 .end(booking.getEnd())
-                .item(new BookingDto.ItemDto(booking.getItem().getId(), booking.getItem().getName()))
-                .booker(new BookingDto.BookerDto(booking.getBooker().getId(), booking.getBooker().getName()))
+                .item(new ItemDto(booking.getItem().getId(), booking.getItem().getName()))
+                .booker(new BookerDto(booking.getBooker().getId(), booking.getBooker().getName()))
                 .status(booking.getStatus())
                 .build();
     }

@@ -19,10 +19,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional
 public class BookingServiceImpl implements BookingService {
+    private static final Sort SORT_BY_START_DESC = Sort.by(Sort.Direction.DESC, "start");
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
-    private static final Sort SORT_BY_START_DESC = Sort.by(Sort.Direction.DESC, "start");
 
     @Override
     public BookingDto create(BookingCreateDto bookingDto, Long userId) {

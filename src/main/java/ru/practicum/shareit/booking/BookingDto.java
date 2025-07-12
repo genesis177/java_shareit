@@ -17,23 +17,4 @@ public class BookingDto {
     private BookerDto booker;
     private BookingStatus status;
 
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
-    public static class ItemDto {
-        private Long id;
-        private String name;
-    }
-
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
-    public static class BookerDto {
-        private Long id;
-        private String name;
-    }
 }
