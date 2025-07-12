@@ -42,7 +42,7 @@ class BookingServiceTest {
     private Item item;
     private Booking booking;
     private BookingCreateDto bookingCreateDto;
-    private BookingDto.BookerDto bookerDto;
+    private BookerDto bookerDto;
 
     @BeforeEach
     void setUp() {
@@ -88,8 +88,8 @@ class BookingServiceTest {
                 .id(1L)
                 .start(start)
                 .end(end)
-                .item(new BookingDto.ItemDto(1L, "Item"))
-                .booker(new BookingDto.BookerDto(2L, "Booker"))
+                .item(new ItemDto(1L, "Item"))
+                .booker(new BookerDto(2L, "Booker"))
                 .status(BookingStatus.WAITING)
                 .build();
     }
