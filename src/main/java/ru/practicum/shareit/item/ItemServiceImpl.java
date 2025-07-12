@@ -1,10 +1,12 @@
 package ru.practicum.shareit.item;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.booking.BookingRepository;
+import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.user.User;
@@ -66,34 +68,42 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional(readOnly = true)
     public ItemDtoWithBookings get(Long itemId, Long userId) {
-        Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new NotFoundException("Вещь не найдена"));
+        try {
+            Item item = itemRepository.findById(itemId)
+                    .orElseThrow(() -> new NotFoundException("Вещь не найдена"));
 
-        List<CommentDto> comments = commentRepository.findByItemId(itemId).stream()
-                .map(CommentMapper::toDto)
-                .collect(Collectors.toList());
+            // Получаем комментарии для вещи
+            List<CommentDto> comments = commentRepository.findByItemId(itemId).stream()
+                    .map(CommentMapper::toDto)
+                    .collect(Collectors.toList());
 
-        // Если пользователь не владелец, не показываем информацию о бронированиях
-        if (!item.getOwner().getId().equals(userId)) {
-            return ItemMapper.toDtoWithBookings(item, null, null, comments);
+            // Если пользователь не владелец, не показываем информацию о бронированиях
+            if (!item.getOwner().getId().equals(userId)) {
+                return ItemMapper.toDtoWithBookings(item, null, null, comments);
+            }
+
+            LocalDateTime now = LocalDateTime.now();
+
+            // Получаем последнее бронирование
+            List<Booking> lastBookings = bookingRepository.findLastBookingForItem(itemId, now);
+            Booking lastBooking = lastBookings.isEmpty() ? null : lastBookings.get(0);
+
+            // Получаем следующее бронирование
+            List<Booking> nextBookings = bookingRepository.findNextBookingForItem(itemId, now);
+            Booking nextBooking = nextBookings.isEmpty() ? null : nextBookings.get(0);
+
+            return ItemMapper.toDtoWithBookings(
+                    item,
+                    lastBooking != null ? BookingMapper.toShortDto(lastBooking) : null,
+                    nextBooking != null ? BookingMapper.toShortDto(nextBooking) : null,
+                    comments
+            );
+        } catch (Exception e) {
+            // Добавляем логирование для отладки
+            System.err.println("Ошибка при получении вещи: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
         }
-
-        LocalDateTime now = LocalDateTime.now();
-
-        // Получаем последнее бронирование
-        List<Booking> lastBookings = bookingRepository.findLastBookingForItem(itemId, now);
-        Booking lastBooking = lastBookings.isEmpty() ? null : lastBookings.get(0);
-
-        // Получаем следующее бронирование
-        List<Booking> nextBookings = bookingRepository.findNextBookingForItem(itemId, now);
-        Booking nextBooking = nextBookings.isEmpty() ? null : nextBookings.get(0);
-
-        return ItemMapper.toDtoWithBookings(
-                item,
-                lastBooking != null ? BookingMapper.toShortDto(lastBooking) : null,
-                nextBooking != null ? BookingMapper.toShortDto(nextBooking) : null,
-                comments
-        );
     }
 
     @Override
@@ -162,8 +172,19 @@ public class ItemServiceImpl implements ItemService {
 
         // Проверяем, что пользователь брал вещь в аренду и аренда уже завершена
         boolean hasCompletedBooking = bookingRepository.existsCompletedBookingByBookerAndItem(userId, itemId, now);
+
         if (!hasCompletedBooking) {
             throw new ValidationException("Вы не можете оставить комментарий к вещи, которую не брали в аренду");
+        }
+
+        List<Booking> approvedBookings = bookingRepository.findByBookerIdAndStatus(
+                userId, BookingStatus.APPROVED, Sort.by(Sort.Direction.DESC, "start"));
+
+        boolean hasApprovedBooking = approvedBookings.stream()
+                .anyMatch(b -> b.getItem().getId().equals(itemId));
+
+        if (!hasApprovedBooking) {
+
         }
 
         Comment comment = Comment.builder()
