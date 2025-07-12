@@ -183,9 +183,6 @@ public class ItemServiceImpl implements ItemService {
         boolean hasApprovedBooking = approvedBookings.stream()
                 .anyMatch(b -> b.getItem().getId().equals(itemId));
 
-        if (!hasApprovedBooking) {
-
-        }
 
         Comment comment = Comment.builder()
                 .text(commentDto.getText())
