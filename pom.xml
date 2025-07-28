@@ -169,13 +169,19 @@
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-checkstyle-plugin</artifactId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <systemPropertyVariables>
+                                <spring.profiles.active>test</spring.profiles.active>
+                            </systemPropertyVariables>
+                        </configuration>
                     </plugin>
                     <plugin>
                         <groupId>com.github.spotbugs</groupId>
                         <artifactId>spotbugs-maven-plugin</artifactId>
                     </plugin>
                 </plugins>
+
             </build>
             <reporting>
                 <plugins>
