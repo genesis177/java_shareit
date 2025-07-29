@@ -17,6 +17,8 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
@@ -35,6 +37,7 @@ public class ItemServiceImpl implements ItemService {
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
+    private final ItemRequestRepository itemRequestRepository;
 
     @Override
     @Transactional
@@ -43,6 +46,14 @@ public class ItemServiceImpl implements ItemService {
                 .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
 
         Item item = ItemMapper.toItem(itemDto, owner);
+
+        // Добавляем поддержку requestId
+        if (itemDto.getRequestId() != null) {
+            ItemRequest request = itemRequestRepository.findById(itemDto.getRequestId())
+                    .orElseThrow(() -> new NotFoundException("Запрос не найден"));
+            item.setRequest(request);
+        }
+
         Item savedItem = itemRepository.save(item);
         log.info("Item created: {}", savedItem);
         return ItemMapper.toItemDto(savedItem);
@@ -80,7 +91,7 @@ public class ItemServiceImpl implements ItemService {
 
         ItemDto itemDto = ItemMapper.toItemDto(item);
 
-        //Добавляем информацию о бронированиях только для владельца
+        // Добавляем информацию о бронированиях только для владельца
         if (item.getOwner().getId().equals(userId)) {
             LocalDateTime now = LocalDateTime.now();
             Optional<Booking> lastBooking = bookingRepository.findLastBookingForItem(itemId, now);

@@ -11,6 +11,7 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.BadRequestException;
+import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
@@ -37,18 +38,18 @@ public class BookingServiceImpl implements BookingService {
                 .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
 
         Item item = itemRepository.findById(bookingDto.getItemId())
-                .orElseThrow(() -> new NotFoundException("Предмет не найден"));
+                .orElseThrow(() -> new NotFoundException("Вещь не найдена"));
 
         if (!item.getAvailable()) {
-            throw new BadRequestException("Предмет недоступен для бронирования");
+            throw new BadRequestException("Вещь недоступна для бронирования");
         }
 
         if (item.getOwner().getId().equals(userId)) {
-            throw new NotFoundException("Владелец не может забронировать свой предмет");
+            throw new NotFoundException("Владелец не может бронировать свою вещь");
         }
 
         if (bookingDto.getEnd().isBefore(bookingDto.getStart()) ||
-                bookingDto.getEnd().equals(bookingDto.getStart())) {
+                bookingDto.getEnd().isEqual(bookingDto.getStart())) {
             throw new BadRequestException("Время окончания должно быть после времени начала");
         }
 
@@ -72,16 +73,16 @@ public class BookingServiceImpl implements BookingService {
                 .orElseThrow(() -> new NotFoundException("Бронирование не найдено"));
 
         if (!booking.getItem().getOwner().getId().equals(userId)) {
-            throw new NotFoundException("Только владелец может подтвердить бронирование");
+            throw new ForbiddenException("Только владелец может подтверждать бронирование");
         }
 
         if (!booking.getStatus().equals(BookingStatus.WAITING)) {
-            throw new BadRequestException("Бронирование уже обработано");
+            throw new BadRequestException("Статус бронирования уже изменен");
         }
 
         booking.setStatus(approved ? BookingStatus.APPROVED : BookingStatus.REJECTED);
         Booking savedBooking = bookingRepository.save(booking);
-        log.info("Booking {} {}", bookingId, approved ? "approved" : "rejected");
+        log.info("Booking status updated: {}", savedBooking);
         return BookingMapper.toBookingDto(savedBooking);
     }
 
@@ -92,7 +93,7 @@ public class BookingServiceImpl implements BookingService {
 
         if (!booking.getBooker().getId().equals(userId) &&
                 !booking.getItem().getOwner().getId().equals(userId)) {
-            throw new NotFoundException("Недостаточно прав для просмотра бронирования");
+            throw new NotFoundException("Доступ запрещен");
         }
 
         return BookingMapper.toBookingDto(booking);
@@ -121,10 +122,10 @@ public class BookingServiceImpl implements BookingService {
                 bookings = bookingRepository.findFutureBookingsByBooker(userId, now);
                 break;
             case "WAITING":
-                bookings = bookingRepository.findByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.WAITING);
+                bookings = bookingRepository.findByBookerIdAndStatus(userId, BookingStatus.WAITING);
                 break;
             case "REJECTED":
-                bookings = bookingRepository.findByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.REJECTED);
+                bookings = bookingRepository.findByBookerIdAndStatus(userId, BookingStatus.REJECTED);
                 break;
             default:
                 throw new BadRequestException("Unknown state: " + state);
@@ -158,10 +159,10 @@ public class BookingServiceImpl implements BookingService {
                 bookings = bookingRepository.findFutureBookingsByOwner(userId, now);
                 break;
             case "WAITING":
-                bookings = bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(userId, BookingStatus.WAITING);
+                bookings = bookingRepository.findByItemOwnerIdAndStatus(userId, BookingStatus.WAITING);
                 break;
             case "REJECTED":
-                bookings = bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(userId, BookingStatus.REJECTED);
+                bookings = bookingRepository.findByItemOwnerIdAndStatus(userId, BookingStatus.REJECTED);
                 break;
             default:
                 throw new BadRequestException("Unknown state: " + state);

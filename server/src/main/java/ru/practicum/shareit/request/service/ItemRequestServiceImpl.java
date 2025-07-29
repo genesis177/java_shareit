@@ -39,7 +39,10 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         ItemRequest itemRequest = ItemRequestMapper.toItemRequest(requestDto, requestor);
         ItemRequest savedRequest = itemRequestRepository.save(itemRequest);
         log.info("ItemRequest created: {}", savedRequest);
-        return ItemRequestMapper.toItemRequestDto(savedRequest);
+
+        ItemRequestDto result = ItemRequestMapper.toItemRequestDto(savedRequest);
+        result.setItems(List.of()); // Инициализируем пустым списком
+        return result;
     }
 
     @Override
@@ -68,7 +71,9 @@ public class ItemRequestServiceImpl implements ItemRequestService {
             throw new NotFoundException("Пользователь не найден");
         }
 
-        Pageable pageable = PageRequest.of(from / size, size, Sort.by("created").descending());
+        // Исправляем пагинацию
+        int page = from / size;
+        Pageable pageable = PageRequest.of(page, size, Sort.by("created").descending());
         List<ItemRequest> requests = itemRequestRepository.findByRequestorIdNotOrderByCreatedDesc(userId, pageable);
 
         return requests.stream()

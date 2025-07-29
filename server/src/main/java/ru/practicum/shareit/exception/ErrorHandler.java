@@ -14,44 +14,51 @@ import javax.validation.ConstraintViolationException;
 public class ErrorHandler {
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleNotFoundException(NotFoundException e) {
-        log.warn("Not found: {}", e.getMessage());
-        return new ErrorResponse(e.getMessage());
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleBadRequestException(final BadRequestException e) {
+        log.error("Bad request: {}", e.getMessage());
+        return new ErrorResponse("Bad Request", e.getMessage());
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleBadRequestException(BadRequestException e) {
-        log.warn("Bad request: {}", e.getMessage());
-        return new ErrorResponse(e.getMessage());
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleNotFoundException(final NotFoundException e) {
+        log.error("Not found: {}", e.getMessage());
+        return new ErrorResponse("Not Found", e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleConflictException(ConflictException e) {
-        log.warn("Conflict: {}", e.getMessage());
-        return new ErrorResponse(e.getMessage());
+    public ErrorResponse handleConflictException(final ConflictException e) {
+        log.error("Conflict: {}", e.getMessage());
+        return new ErrorResponse("Conflict", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handleForbiddenException(final ForbiddenException e) {
+        log.error("Forbidden: {}", e.getMessage());
+        return new ErrorResponse("Forbidden", e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleValidationException(MethodArgumentNotValidException e) {
-        log.warn("Validation error: {}", e.getMessage());
-        return new ErrorResponse("Ошибка валидации", e.getMessage());
+    public ErrorResponse handleValidationException(final MethodArgumentNotValidException e) {
+        log.error("Validation error: {}", e.getMessage());
+        return new ErrorResponse("Validation Failed", e.getBindingResult().getAllErrors().get(0).getDefaultMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleConstraintViolationException(ConstraintViolationException e) {
-        log.warn("Constraint violation: {}", e.getMessage());
-        return new ErrorResponse("Ошибка валидации", e.getMessage());
+    public ErrorResponse handleConstraintViolationException(final ConstraintViolationException e) {
+        log.error("Constraint violation: {}", e.getMessage());
+        return new ErrorResponse("Validation Failed", e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleThrowable(Throwable e) {
-        log.error("Unexpected error", e);
-        return new ErrorResponse("Произошла непредвиденная ошибка", e.getMessage());
+    public ErrorResponse handleThrowable(final Throwable e) {
+        log.error("Internal server error: {}", e.getMessage(), e);
+        return new ErrorResponse("Internal Server Error", "Произошла непредвиденная ошибка");
     }
 }

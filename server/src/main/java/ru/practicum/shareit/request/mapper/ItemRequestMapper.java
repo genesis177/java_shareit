@@ -21,6 +21,7 @@ public class ItemRequestMapper {
         ItemRequestDto dto = new ItemRequestDto();
         dto.setId(itemRequest.getId());
         dto.setDescription(itemRequest.getDescription());
+        dto.setName(itemRequest.getDescription());
         dto.setCreated(itemRequest.getCreated());
         dto.setItems(new ArrayList<>());
         return dto;

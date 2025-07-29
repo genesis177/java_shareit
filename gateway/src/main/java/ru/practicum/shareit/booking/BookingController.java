@@ -26,6 +26,13 @@ public class BookingController {
     public ResponseEntity<Object> create(@RequestHeader("X-Sharer-User-Id") @Positive Long userId,
                                          @Valid @RequestBody BookItemRequestDto bookingDto) {
         log.info("POST /bookings with userId={}, bookingDto={}", userId, bookingDto);
+
+        // Валидация времени
+        if (bookingDto.getEnd().isBefore(bookingDto.getStart()) ||
+                bookingDto.getEnd().isEqual(bookingDto.getStart())) {
+            throw new IllegalArgumentException("Время окончания должно быть после времени начала");
+        }
+
         return bookingClient.create(userId, bookingDto);
     }
 
@@ -57,7 +64,7 @@ public class BookingController {
             throw new IllegalArgumentException("Unknown state: " + state);
         }
 
-        return bookingClient.getBookings(userId, state);
+        return bookingClient.getBookings(userId, state, from, size);
     }
 
     @GetMapping("/owner")
@@ -73,6 +80,6 @@ public class BookingController {
             throw new IllegalArgumentException("Unknown state: " + state);
         }
 
-        return bookingClient.getBookingsByOwner(userId, state);
+        return bookingClient.getBookingsByOwner(userId, state, from, size);
     }
 }
