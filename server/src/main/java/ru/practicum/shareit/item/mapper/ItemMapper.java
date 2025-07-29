@@ -9,26 +9,26 @@ import java.util.ArrayList;
 public class ItemMapper {
 
     public static ItemDto toItemDto(Item item) {
-        ItemDto dto = new ItemDto();
-        dto.setId(item.getId());
-        dto.setName(item.getName());
-        dto.setDescription(item.getDescription());
-        dto.setAvailable(item.getAvailable());
-        dto.setComments(new ArrayList<>());
+        ItemDto.ItemDtoBuilder builder = ItemDto.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .description(item.getDescription())
+                .available(item.getAvailable())
+                .comments(new ArrayList<>());
 
         if (item.getRequest() != null) {
-            dto.setRequestId(item.getRequest().getId());
+            builder.requestId(item.getRequest().getId());
         }
 
-        return dto;
+        return builder.build();
     }
 
     public static Item toItem(ItemDto itemDto, User owner) {
-        Item item = new Item();
-        item.setName(itemDto.getName());
-        item.setDescription(itemDto.getDescription());
-        item.setAvailable(itemDto.getAvailable());
-        item.setOwner(owner);
-        return item;
+        return Item.builder()
+                .name(itemDto.getName())
+                .description(itemDto.getDescription())
+                .available(itemDto.getAvailable())
+                .owner(owner)
+                .build();
     }
 }
