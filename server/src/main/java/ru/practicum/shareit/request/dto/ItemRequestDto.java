@@ -1,27 +1,25 @@
 package ru.practicum.shareit.request.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Data;
 import ru.practicum.shareit.item.dto.ItemDto;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Data
 public class ItemRequestDto {
     private Long id;
 
-    @NotBlank(message = "Описание запроса не может быть пустым")
+    @NotNull(message = "Описание не может быть null")
+    @NotBlank(message = "Описание не может быть пустым")
     private String description;
 
-    private String name;
-
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime created;
+
     private List<ItemDto> items;
 }

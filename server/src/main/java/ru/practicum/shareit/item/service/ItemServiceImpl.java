@@ -42,20 +42,22 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public ItemDto create(Long userId, ItemDto itemDto) {
+        log.info("Creating item for user {}: {}", userId, itemDto);
+
         User owner = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+                .orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден"));
 
         Item item = ItemMapper.toItem(itemDto, owner);
 
         // Добавляем поддержку requestId
         if (itemDto.getRequestId() != null) {
             ItemRequest request = itemRequestRepository.findById(itemDto.getRequestId())
-                    .orElseThrow(() -> new NotFoundException("Запрос не найден"));
+                    .orElseThrow(() -> new NotFoundException("Запрос с id " + itemDto.getRequestId() + " не найден"));
             item.setRequest(request);
         }
 
         Item savedItem = itemRepository.save(item);
-        log.info("Item created: {}", savedItem);
+        log.info("Item created with id: {}", savedItem.getId());
         return ItemMapper.toItemDto(savedItem);
     }
 

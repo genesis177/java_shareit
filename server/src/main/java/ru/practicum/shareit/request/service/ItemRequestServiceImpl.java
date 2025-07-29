@@ -33,25 +33,30 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     @Transactional
     public ItemRequestDto create(Long userId, ItemRequestDto requestDto) {
+        log.info("Creating request for user {}: {}", userId, requestDto);
+
         User requestor = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+                .orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден"));
 
         ItemRequest itemRequest = ItemRequestMapper.toItemRequest(requestDto, requestor);
         ItemRequest savedRequest = itemRequestRepository.save(itemRequest);
-        log.info("ItemRequest created: {}", savedRequest);
 
-        ItemRequestDto result = ItemRequestMapper.toItemRequestDto(savedRequest);
-        result.setItems(List.of()); // Инициализируем пустым списком
-        return result;
+        log.info("ItemRequest created with id: {}", savedRequest.getId());
+
+        return ItemRequestMapper.toItemRequestDto(savedRequest);
     }
 
     @Override
     public List<ItemRequestDto> getOwn(Long userId) {
+        log.info("Getting own requests for user {}", userId);
+
         if (!userRepository.existsById(userId)) {
-            throw new NotFoundException("Пользователь не найден");
+            throw new NotFoundException("Пользователь с id " + userId + " не найден");
         }
 
         List<ItemRequest> requests = itemRequestRepository.findByRequestorIdOrderByCreatedDesc(userId);
+        log.info("Found {} requests for user {}", requests.size(), userId);
+
         return requests.stream()
                 .map(request -> {
                     ItemRequestDto dto = ItemRequestMapper.toItemRequestDto(request);
@@ -67,11 +72,12 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     @Override
     public List<ItemRequestDto> getAll(Long userId, Integer from, Integer size) {
+        log.info("Getting all requests for user {}, from {}, size {}", userId, from, size);
+
         if (!userRepository.existsById(userId)) {
-            throw new NotFoundException("Пользователь не найден");
+            throw new NotFoundException("Пользователь с id " + userId + " не найден");
         }
 
-        // Исправляем пагинацию
         int page = from / size;
         Pageable pageable = PageRequest.of(page, size, Sort.by("created").descending());
         List<ItemRequest> requests = itemRequestRepository.findByRequestorIdNotOrderByCreatedDesc(userId, pageable);
@@ -91,12 +97,14 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     @Override
     public ItemRequestDto getById(Long userId, Long requestId) {
+        log.info("Getting request {} for user {}", requestId, userId);
+
         if (!userRepository.existsById(userId)) {
-            throw new NotFoundException("Пользователь не найден");
+            throw new NotFoundException("Пользователь с id " + userId + " не найден");
         }
 
         ItemRequest request = itemRequestRepository.findById(requestId)
-                .orElseThrow(() -> new NotFoundException("Запрос не найден"));
+                .orElseThrow(() -> new NotFoundException("Запрос с id " + requestId + " не найден"));
 
         ItemRequestDto dto = ItemRequestMapper.toItemRequestDto(request);
         List<ItemDto> items = itemRepository.findByRequestId(requestId)

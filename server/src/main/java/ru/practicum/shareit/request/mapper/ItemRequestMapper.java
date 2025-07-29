@@ -10,20 +10,19 @@ import java.util.ArrayList;
 public class ItemRequestMapper {
 
     public static ItemRequest toItemRequest(ItemRequestDto dto, User requestor) {
-        return ItemRequest.builder()
-                .description(dto.getDescription())
-                .requestor(requestor)
-                .created(LocalDateTime.now())
-                .build();
+        ItemRequest itemRequest = new ItemRequest();
+        itemRequest.setDescription(dto.getDescription());
+        itemRequest.setRequestor(requestor);
+        itemRequest.setCreated(LocalDateTime.now());
+        return itemRequest;
     }
 
     public static ItemRequestDto toItemRequestDto(ItemRequest itemRequest) {
         ItemRequestDto dto = new ItemRequestDto();
         dto.setId(itemRequest.getId());
         dto.setDescription(itemRequest.getDescription());
-        dto.setName(itemRequest.getDescription());
         dto.setCreated(itemRequest.getCreated());
-        dto.setItems(new ArrayList<>());
+        dto.setItems(new ArrayList<>()); // Инициализируем пустым списком
         return dto;
     }
 }
