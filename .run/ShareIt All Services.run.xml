@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="ShareIt All Services" type="CompoundRunConfigurationType">
+    <toRun name="ShareItGateway" type="Application" />
+    <toRun name="ShareItServer" type="Application" />
+    <method v="2" />
+  </configuration>
+</component>
