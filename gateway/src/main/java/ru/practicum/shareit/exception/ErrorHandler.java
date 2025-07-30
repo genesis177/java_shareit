@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.validation.ConstraintViolationException;
+import java.util.Map;
 
 @RestControllerAdvice
 @Slf4j
@@ -17,7 +18,7 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidationException(MethodArgumentNotValidException e) {
         log.warn("Validation error: {}", e.getMessage());
-        return new ErrorResponse("Ошибка валидации", e.getMessage());
+        return new ErrorResponse("Ошибка валидации", e.getBindingResult().getAllErrors().get(0).getDefaultMessage());
     }
 
     @ExceptionHandler
@@ -29,9 +30,9 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleIllegalArgumentException(IllegalArgumentException e) {
+    public Map<String, String> handleIllegalArgumentException(IllegalArgumentException e) {
         log.warn("Illegal argument: {}", e.getMessage());
-        return new ErrorResponse(e.getMessage());
+        return Map.of("error", e.getMessage());
     }
 
     @ExceptionHandler

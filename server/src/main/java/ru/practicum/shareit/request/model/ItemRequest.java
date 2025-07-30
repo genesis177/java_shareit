@@ -1,7 +1,6 @@
 package ru.practicum.shareit.request.model;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
@@ -9,7 +8,11 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "requests")
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @EqualsAndHashCode(of = "id")
 public class ItemRequest {
     @Id
@@ -28,6 +31,8 @@ public class ItemRequest {
 
     @PrePersist
     protected void onCreate() {
-        created = LocalDateTime.now();
+        if (created == null) {
+            created = LocalDateTime.now();
+        }
     }
 }

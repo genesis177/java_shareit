@@ -34,6 +34,8 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional
     public BookingDto create(Long userId, BookingCreateDto bookingDto) {
+        log.info("Creating booking for user {}: {}", userId, bookingDto);
+
         User booker = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
 
@@ -62,18 +64,20 @@ public class BookingServiceImpl implements BookingService {
                 .build();
 
         Booking savedBooking = bookingRepository.save(booking);
-        log.info("Booking created: {}", savedBooking);
+        log.info("Booking created: {}", savedBooking.getId());
         return BookingMapper.toBookingDto(savedBooking);
     }
 
     @Override
     @Transactional
     public BookingDto approve(Long userId, Long bookingId, Boolean approved) {
+        log.info("Approving booking {} by user {}: {}", bookingId, userId, approved);
+
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new NotFoundException("Бронирование не найдено"));
 
         if (!booking.getItem().getOwner().getId().equals(userId)) {
-            throw new ForbiddenException("Только владелец может подтверждать бронирование");
+            throw new NotFoundException("Только владелец может подтверждать бронирование");
         }
 
         if (!booking.getStatus().equals(BookingStatus.WAITING)) {
@@ -82,12 +86,14 @@ public class BookingServiceImpl implements BookingService {
 
         booking.setStatus(approved ? BookingStatus.APPROVED : BookingStatus.REJECTED);
         Booking savedBooking = bookingRepository.save(booking);
-        log.info("Booking status updated: {}", savedBooking);
+        log.info("Booking status updated: {}", savedBooking.getId());
         return BookingMapper.toBookingDto(savedBooking);
     }
 
     @Override
     public BookingDto getBooking(Long userId, Long bookingId) {
+        log.info("Getting booking {} for user {}", bookingId, userId);
+
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new NotFoundException("Бронирование не найдено"));
 
@@ -101,6 +107,8 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<BookingDto> getBookings(Long userId, String state) {
+        log.info("Getting bookings for user {} with state {}", userId, state);
+
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException("Пользователь не найден");
         }
@@ -131,6 +139,7 @@ public class BookingServiceImpl implements BookingService {
                 throw new BadRequestException("Unknown state: " + state);
         }
 
+        log.info("Found {} bookings for user {}", bookings.size(), userId);
         return bookings.stream()
                 .map(BookingMapper::toBookingDto)
                 .collect(Collectors.toList());
@@ -138,6 +147,8 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<BookingDto> getBookingsByOwner(Long userId, String state) {
+        log.info("Getting bookings by owner {} with state {}", userId, state);
+
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException("Пользователь не найден");
         }
@@ -168,6 +179,7 @@ public class BookingServiceImpl implements BookingService {
                 throw new BadRequestException("Unknown state: " + state);
         }
 
+        log.info("Found {} bookings by owner {}", bookings.size(), userId);
         return bookings.stream()
                 .map(BookingMapper::toBookingDto)
                 .collect(Collectors.toList());

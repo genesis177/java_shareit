@@ -49,7 +49,6 @@ public class ItemServiceImpl implements ItemService {
 
         Item item = ItemMapper.toItem(itemDto, owner);
 
-        // Добавляем поддержку requestId
         if (itemDto.getRequestId() != null) {
             ItemRequest request = itemRequestRepository.findById(itemDto.getRequestId())
                     .orElseThrow(() -> new NotFoundException("Запрос с id " + itemDto.getRequestId() + " не найден"));
@@ -64,6 +63,8 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public ItemDto update(Long userId, Long itemId, ItemDto itemDto) {
+        log.info("Updating item {} for user {}", itemId, userId);
+
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Вещь не найдена"));
 
@@ -71,10 +72,10 @@ public class ItemServiceImpl implements ItemService {
             throw new NotFoundException("Только владелец может редактировать вещь");
         }
 
-        if (itemDto.getName() != null) {
+        if (itemDto.getName() != null && !itemDto.getName().isBlank()) {
             item.setName(itemDto.getName());
         }
-        if (itemDto.getDescription() != null) {
+        if (itemDto.getDescription() != null && !itemDto.getDescription().isBlank()) {
             item.setDescription(itemDto.getDescription());
         }
         if (itemDto.getAvailable() != null) {
@@ -82,12 +83,14 @@ public class ItemServiceImpl implements ItemService {
         }
 
         Item updatedItem = itemRepository.save(item);
-        log.info("Item updated: {}", updatedItem);
+        log.info("Item updated: {}", updatedItem.getId());
         return ItemMapper.toItemDto(updatedItem);
     }
 
     @Override
     public ItemDto get(Long userId, Long itemId) {
+        log.info("Getting item {} for user {}", itemId, userId);
+
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Вещь не найдена"));
 
@@ -109,15 +112,18 @@ public class ItemServiceImpl implements ItemService {
                 .map(CommentMapper::toCommentDto)
                 .collect(Collectors.toList()));
 
+        log.info("Retrieved item {} with {} comments", itemId, comments.size());
         return itemDto;
     }
 
     @Override
     public List<ItemDto> getAll(Long userId) {
+        log.info("Getting all items for user {}", userId);
+
         List<Item> items = itemRepository.findByOwnerIdOrderByIdAsc(userId);
         LocalDateTime now = LocalDateTime.now();
 
-        return items.stream()
+        List<ItemDto> result = items.stream()
                 .map(item -> {
                     ItemDto itemDto = ItemMapper.toItemDto(item);
 
@@ -137,23 +143,33 @@ public class ItemServiceImpl implements ItemService {
                     return itemDto;
                 })
                 .collect(Collectors.toList());
+
+        log.info("Retrieved {} items for user {}", result.size(), userId);
+        return result;
     }
 
     @Override
     public List<ItemDto> search(String text) {
+        log.info("Searching items with text: {}", text);
+
         if (text == null || text.trim().isEmpty()) {
             return Collections.emptyList();
         }
 
         List<Item> items = itemRepository.searchByText(text.trim());
-        return items.stream()
+        List<ItemDto> result = items.stream()
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
+
+        log.info("Found {} items for search text: {}", result.size(), text);
+        return result;
     }
 
     @Override
     @Transactional
     public CommentDto createComment(Long userId, Long itemId, CommentDto commentDto) {
+        log.info("Creating comment for item {} by user {}", itemId, userId);
+
         User author = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
 
@@ -169,7 +185,7 @@ public class ItemServiceImpl implements ItemService {
 
         Comment comment = CommentMapper.toComment(commentDto, item, author);
         Comment savedComment = commentRepository.save(comment);
-        log.info("Comment created: {}", savedComment);
+        log.info("Comment created: {}", savedComment.getId());
         return CommentMapper.toCommentDto(savedComment);
     }
 }
